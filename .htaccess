@@ -47,3 +47,14 @@ Options -Indexes
 # Disable server signature start
 ServerSignature Off
 # Disable server signature end
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to index.php
+    RewriteCond %{THE_REQUEST} \s/.*index\.php [NC]
+    RewriteRule ^index\.php$ - [R=404,L]
+
+    # Existing CodeIgniter rules here...
+</IfModule>
+

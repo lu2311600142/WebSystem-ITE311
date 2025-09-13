@@ -100,7 +100,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="#"><i class="bi bi-house-fill"></i> Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#"><i class="bi bi-house-fill"></i> Home</a></li> 
           <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-info-circle-fill"></i> About</a></li>
           <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-envelope-fill"></i> Contact</a></li>
         </ul>
