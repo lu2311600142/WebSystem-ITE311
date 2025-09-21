@@ -1,16 +1,22 @@
-    <?php
+<?php
 
-    $routes->setDefaultController('Home');
-    $routes->setDefaultMethod('index');
+use CodeIgniter\Router\RouteCollection;
 
-    $routes->get('/', 'Home::index');
-    $routes->get('about', 'Home::about'); 
-    $routes->get('contact', 'Home::contact');
+/**
+ * @var RouteCollection $routes
+ */
+$routes->setDefaultNamespace('App\Controllers');
+$routes->setDefaultController('Home');
+$routes->setDefaultMethod('index');
+$routes->setAutoRoute(true);
 
-    $routes->get('register', 'Auth::register');
-    $routes->post('register', 'Auth::register');
-    $routes->get('login', 'Auth::login');
-    $routes->post('login', 'Auth::login');
-    $routes->get('logout', 'Auth::logout');
-    $routes->get('dashboard', 'Auth::dashboard');
+// Home routes
+$routes->get('/', 'Home::index');
+$routes->get('about', 'Home::about');
+$routes->get('contact', 'Home::contact');
 
+// Authentication routes
+$routes->match(['get', 'post'], 'register', 'Auth::register');
+$routes->match(['get', 'post'], 'login', 'Auth::login');
+$routes->get('dashboard', 'Auth::dashboard');
+$routes->get('logout', 'Auth::logout');
