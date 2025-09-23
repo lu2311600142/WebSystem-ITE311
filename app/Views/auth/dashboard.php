@@ -204,14 +204,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- System Info -->
-        <div class="dashboard-card">
-            <h3>System Information</h3>
-            <div class="alert alert-info">
-                <strong>Note:</strong> This is a demo dashboard. Additional features and functionality would be implemented based on your specific requirements.
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

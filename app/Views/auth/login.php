@@ -157,7 +157,7 @@
 
     <!-- Footer -->
     <footer>
-        &copy; 2025 Your Website Name. All rights reserved.
+        &copy; 2025 Your ITE311-LU. All rights reserved.
     </footer>
 
 </body>
