@@ -3,6 +3,19 @@
 $role = $role ?? session('role') ?? 'student';
 $username = $username ?? session('username') ?? 'User';
 
+// Debug: Check what role we actually have
+// Uncomment this line to debug: echo "Current role: " . $role . "<br>";
+
+// If username contains 'instructor' or 'teacher', assume teacher role
+if (stripos($username, 'instructor') !== false || stripos($username, 'teacher') !== false) {
+    $role = 'teacher';
+}
+
+// Alternative: check if role from session needs mapping
+if (session('role') === 'instructor') {
+    $role = 'teacher';
+}
+
 $totalUsers    = $totalUsers    ?? 0;
 $totalAdmins   = $totalAdmins   ?? 0;
 $totalTeachers = $totalTeachers ?? 0;
@@ -145,29 +158,63 @@ echo view('templates/header', [
 
   <!-- Teacher content -->
   <?php elseif($role === 'teacher'): ?>
+    
     <div class="row mb-4">
-      <div class="col-md-3"><div class="card shadow p-3"><small>My Courses</small><h4><?= esc($totalCourses) ?></h4></div></div>
-      <div class="col-md-3"><div class="card shadow p-3"><small>Students</small><h4><?= esc($totalStudents) ?></h4></div></div>
-      <div class="col-md-3"><div class="card shadow p-3"><small>Pending Reviews</small><h4><?= esc($pendingAssignments) ?></h4></div></div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>My Courses</small><h4><?= esc($totalCourses) ?></h4></div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>Students</small><h4><?= esc($totalStudents) ?></h4></div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>Pending Reviews</small><h4><?= esc($pendingAssignments) ?></h4></div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header"><strong>My Teaching Courses</strong></div>
+      <div class="card-body">
+        <?php if(!empty($enrolledCourses)): ?>
+          <ul class="list-group list-group-flush">
+            <?php foreach($enrolledCourses as $c): ?>
+              <li class="list-group-item">
+                <strong><?= esc($c['name'] ?? $c['course_name'] ?? 'Course') ?></strong>
+                <br><small class="text-muted">Students enrolled: <?= esc($c['students_count'] ?? 'N/A') ?></small>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php else: ?>
+          <p class="text-muted">No courses assigned yet.</p>
+        <?php endif; ?>
+      </div>
     </div>
 
     <div class="card shadow mb-4">
       <div class="card-header"><strong>Notifications</strong></div>
       <div class="card-body">
-        <?php if(!empty($notifications)): foreach($notifications as $n): ?>
-          <div class="notification-item"><?= esc($n) ?></div>
-        <?php endforeach; else: ?>
-          <p class="text-muted">No notifications</p>
+        <?php if(!empty($notifications)): ?>
+          <?php foreach($notifications as $n): ?>
+            <div class="notification-item"><?= esc($n) ?></div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <p class="text-muted">No notifications at this time.</p>
         <?php endif; ?>
       </div>
     </div>
 
   <!-- Student content -->
   <?php else: ?>
+    
     <div class="row mb-4">
-      <div class="col-md-3"><div class="card shadow p-3"><small>Enrolled Courses</small><h4><?= count($enrolledCourses) ?></h4></div></div>
-      <div class="col-md-3"><div class="card shadow p-3"><small>Deadlines</small><h4><?= count($upcomingDeadlines) ?></h4></div></div>
-      <div class="col-md-3"><div class="card shadow p-3"><small>Grades</small><h4><?= count($recentGrades) ?></h4></div></div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>Enrolled Courses</small><h4><?= count($enrolledCourses) ?></h4></div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>Deadlines</small><h4><?= count($upcomingDeadlines) ?></h4></div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card stat-card p-3"><small>Grades</small><h4><?= count($recentGrades) ?></h4></div>
+      </div>
     </div>
 
     <div class="card shadow mb-4">
@@ -176,7 +223,9 @@ echo view('templates/header', [
         <?php if(!empty($enrolledCourses)): ?>
           <ul class="list-group list-group-flush">
             <?php foreach($enrolledCourses as $c): ?>
-              <li class="list-group-item"><?= esc($c['name'] ?? $c['course_name'] ?? 'Course') ?> — Progress: <?= esc($c['progress'] ?? 'N/A') ?></li>
+              <li class="list-group-item">
+                <?= esc($c['name'] ?? $c['course_name'] ?? 'Course') ?> — Progress: <?= esc($c['progress'] ?? 'N/A') ?>
+              </li>
             <?php endforeach; ?>
           </ul>
         <?php else: ?>

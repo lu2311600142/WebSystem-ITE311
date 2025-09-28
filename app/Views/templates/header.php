@@ -35,7 +35,7 @@ $isLoggedIn = session('isLoggedIn') ?? false;
                     <?php elseif ($role === 'teacher'): ?>
                         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-book"></i> My Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-tasks"></i> Assignments</a></li>
-                    <?php else: ?>
+                    <?php else: ?> 
                         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-book"></i> My Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Grades</a></li>
                     <?php endif; ?>
