@@ -16,95 +16,77 @@ $notifications      = $notifications      ?? [];
 $enrolledCourses   = $enrolledCourses   ?? [];
 $upcomingDeadlines = $upcomingDeadlines ?? [];
 $recentGrades      = $recentGrades      ?? [];
+
+// Set variables that header.php expects
+$userRole = $role;
+$isLoggedIn = session('isLoggedIn') ?? true;
+$title = 'Dashboard';
+
+// Include the header from templates folder
+echo view('templates/header', [
+    'userRole' => $userRole,
+    'username' => $username,
+    'isLoggedIn' => $isLoggedIn,
+    'title' => $title,
+    'role' => $role
+]);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title><?= esc($title ?? 'Dashboard') ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    /* Base */
-    body {
-      background-color: #eef2f7;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-    }
 
-    /* Header */
-    header {
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      color: white;
-      padding: 40px 0;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    header h1 { font-size: 2.2rem; letter-spacing: 1px; }
+<style>
+  /* Base */
+  body {
+    background-color: #eef2f7;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
 
-    /* Navigation */
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    nav a {
-      text-decoration: none;
-      color: #764ba2;
-      font-weight: bold;
-      padding: 8px 18px;
-      border-radius: 20px;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: all .3s ease;
-    }
-    nav a:hover {
-      background: #764ba2;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
+  /* Header */
+  .dashboard-header {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .dashboard-header h1 { font-size: 2.2rem; letter-spacing: 1px; }
 
-    /* Cards */
-    .card {
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      transition: transform .2s;
-    }
-    .card:hover { transform: translateY(-5px); }
+  /* Cards */
+  .card {
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform .2s;
+  }
+  .card:hover { transform: translateY(-5px); }
 
-    .stat-card small {
-      font-size: .8rem;
-      text-transform: uppercase;
-      font-weight: bold;
-      color: #764ba2;
-    }
-    .stat-card h4 { color: #333; }
+  .stat-card small {
+    font-size: .8rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #764ba2;
+  }
+  .stat-card h4 { color: #333; }
 
-    /* Notifications */
-    .notification-item {
-      border-left: 4px solid #764ba2;
-      background: #f9f6ff;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
+  /* Notifications */
+  .notification-item {
+    border-left: 4px solid #764ba2;
+    background: #f9f6ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
 
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 15px 0;
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
-</head>
-<body>
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+</style>
 
-<!-- Header -->
-<header>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
   <?php if($role === 'admin'): ?>
     <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
     <p>Welcome back, <?= esc($username) ?>! Manage your system efficiently.</p>
@@ -115,28 +97,7 @@ $recentGrades      = $recentGrades      ?? [];
     <h1><i class="fas fa-user-graduate"></i> Student Dashboard</h1>
     <p>Welcome back, <?= esc($username) ?>! Continue your learning journey.</p>
   <?php endif; ?>
-</header>
-
-<!-- Navigation -->
-<nav>
-  <a href="<?= base_url('dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-
-  <?php if($role === 'admin'): ?>
-    <a href="#"><i class="fas fa-users"></i> Manage Users</a>
-    <a href="#"><i class="fas fa-book"></i> Courses</a>
-    <a href="#"><i class="fas fa-chart-bar"></i> Reports</a>
-
-  <?php elseif($role === 'teacher'): ?>
-    <a href="#"><i class="fas fa-book"></i> My Courses</a>
-    <a href="#"><i class="fas fa-tasks"></i> Assignments</a>
-
-  <?php else: ?>
-    <a href="#"><i class="fas fa-book"></i> My Courses</a>
-    <a href="#"><i class="fas fa-chart-bar"></i> Grades</a>
-  <?php endif; ?>
-
-  <a href="<?= base_url('logout') ?>"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</nav>
+</div>
 
 <!-- Main -->
 <div class="container mb-5">

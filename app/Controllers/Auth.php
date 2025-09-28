@@ -90,6 +90,7 @@ class Auth extends BaseController
                     ];
                     $session->set($sessionData);
 
+                    // Redirect all users to the same unified dashboard
                     return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                 } else {
                     return redirect()->back()->withInput()->with('error', 'Invalid email or password.');
@@ -114,7 +115,7 @@ class Auth extends BaseController
     }
 
     /**
-     * dashboard() - A protected page that only logged-in users can see.
+     * dashboard() - A unified dashboard that displays content based on user role.
      */
     public function dashboard()
     {
@@ -125,12 +126,69 @@ class Auth extends BaseController
             return redirect()->to('/login')->with('error', 'Please login first.');
         }
 
+        $userModel = new UserModel();
+        $userRole = $session->get('role');
+
+        // Base data for all users
         $data = [
-            'title' => 'User Dashboard',
+            'title' => 'Dashboard',
             'username' => $session->get('username'),
             'email' => $session->get('email'),
-            'role' => $session->get('role')
+            'role' => $userRole
         ];
+
+        // Initialize all variables to prevent undefined variable errors
+        $data['totalUsers'] = 0;
+        $data['totalAdmins'] = 0;
+        $data['totalTeachers'] = 0;
+        $data['totalStudents'] = 0;
+        $data['recentUsers'] = [];
+        $data['totalCourses'] = 3;
+        $data['pendingAssignments'] = 5;
+        $data['notifications'] = [];
+        $data['enrolledCourses'] = [];
+        $data['upcomingDeadlines'] = [];
+        $data['recentGrades'] = [];
+
+        // Fetch role-specific data
+        switch ($userRole) {
+            case 'admin':
+                $data['totalUsers'] = $userModel->countAll();
+                $data['totalAdmins'] = $userModel->where('role', 'admin')->countAllResults();
+                $data['totalTeachers'] = $userModel->where('role', 'teacher')->countAllResults();
+                $data['totalStudents'] = $userModel->where('role', 'student')->countAllResults();
+                $data['recentUsers'] = $userModel->orderBy('created_at', 'DESC')->limit(5)->find();
+                break;
+
+            case 'teacher':
+                $data['totalCourses'] = 3; // Mock data
+                $data['totalStudents'] = 25; // Mock data
+                $data['pendingAssignments'] = 5; // Mock data
+                $data['notifications'] = [
+                    'New assignment submitted in Math 101',
+                    'Course "Physics Basics" needs review',
+                    'Student John Doe requested help'
+                ];
+                break;
+
+            case 'student':
+                $data['enrolledCourses'] = [
+                    ['name' => 'Mathematics 101', 'progress' => '75%', 'grade' => 'A-'],
+                    ['name' => 'Physics Fundamentals', 'progress' => '60%', 'grade' => 'B+'],
+                    ['name' => 'Chemistry Basics', 'progress' => '45%', 'grade' => 'B']
+                ];
+                $data['upcomingDeadlines'] = [
+                    ['assignment' => 'Math Assignment 3', 'due' => '2025-09-25', 'course' => 'Math 101'],
+                    ['assignment' => 'Physics Lab Report', 'due' => '2025-09-28', 'course' => 'Physics'],
+                    ['assignment' => 'Chemistry Quiz', 'due' => '2025-10-02', 'course' => 'Chemistry']
+                ];
+                $data['recentGrades'] = [
+                    ['assignment' => 'Math Quiz 2', 'grade' => 'A', 'date' => '2025-09-15'],
+                    ['assignment' => 'Physics Homework', 'grade' => 'B+', 'date' => '2025-09-12'],
+                    ['assignment' => 'Chemistry Test', 'grade' => 'B', 'date' => '2025-09-10']
+                ];
+                break;
+        }
 
         return view('auth/dashboard', $data);
     }
