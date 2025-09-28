@@ -235,15 +235,6 @@ echo view('templates/header', [
     </div>
   <?php endif; ?>
 
-  <!-- System Info -->
-  <div class="card shadow">
-    <div class="card-body">
-      <h6>System Information</h6>
-      <p class="mb-0"><strong>Note:</strong> This is a demo dashboard — extend with your models and data.</p>
-    </div>
-  </div>
-</div>
-
 <!-- Footer -->
 <footer>
   &copy; 2025 Your ITE311-LU. All rights reserved.
