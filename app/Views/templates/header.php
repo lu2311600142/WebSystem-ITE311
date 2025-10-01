@@ -21,7 +21,9 @@ $isLoggedIn = session('isLoggedIn') ?? false;
     <?php endif; ?>">
     <div class="container">
         <a class="navbar-brand" href="<?= base_url('dashboard') ?>">
-            <i class="fas fa-graduation-cap"></i> ITE311-LU
+            <i class="fas fa-clipboard-list"></i> LMS
+     
+
         </a>
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
             <span class="navbar-toggler-icon"></span>
