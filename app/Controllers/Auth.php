@@ -128,6 +128,7 @@ class Auth extends BaseController
 
         $userModel = new UserModel();
         $userRole = $session->get('role');
+        $userId = $session->get('id');
 
         // Base data for all users
         $data = [
@@ -143,12 +144,14 @@ class Auth extends BaseController
         $data['totalTeachers'] = 0;
         $data['totalStudents'] = 0;
         $data['recentUsers'] = [];
-        $data['totalCourses'] = 3;
+        $data['totalCourses'] = 0;
         $data['pendingAssignments'] = 5;
         $data['notifications'] = [];
         $data['enrolledCourses'] = [];
+        $data['availableCourses'] = [];
         $data['upcomingDeadlines'] = [];
         $data['recentGrades'] = [];
+        $data['totalCredits'] = 0;
 
         // Fetch role-specific data
         switch ($userRole) {
@@ -161,9 +164,9 @@ class Auth extends BaseController
                 break;
 
             case 'teacher':
-                $data['totalCourses'] = 3; // Mock data
-                $data['totalStudents'] = 25; // Mock data
-                $data['pendingAssignments'] = 5; // Mock data
+                $data['totalCourses'] = 3;
+                $data['totalStudents'] = 25;
+                $data['pendingAssignments'] = 5;
                 $data['notifications'] = [
                     'New assignment submitted in Math 101',
                     'Course "Physics Basics" needs review',
@@ -172,20 +175,31 @@ class Auth extends BaseController
                 break;
 
             case 'student':
-                $data['enrolledCourses'] = [
-                    ['name' => 'Mathematics 101', 'progress' => '75%', 'grade' => 'A-'],
-                    ['name' => 'Physics Fundamentals', 'progress' => '60%', 'grade' => 'B+'],
-                    ['name' => 'Chemistry Basics', 'progress' => '45%', 'grade' => 'B']
-                ];
+                // Load models for enrollment
+                $enrollmentModel = new \App\Models\EnrollmentModel();
+                $courseModel = new \App\Models\CourseModel();
+                
+                // Get enrolled courses
+                $data['enrolledCourses'] = $enrollmentModel->getUserEnrollments($userId);
+                
+                // Get available courses (not enrolled yet)
+                $data['availableCourses'] = $courseModel->getAvailableCourses($userId);
+                
+                // Calculate total credits
+                $totalCredits = 0;
+                foreach ($data['enrolledCourses'] as $course) {
+                    $totalCredits += 3; // Assuming 3 credits per course
+                }
+                $data['totalCredits'] = $totalCredits;
+                
+                // Mock data for deadlines and grades
                 $data['upcomingDeadlines'] = [
                     ['assignment' => 'Math Assignment 3', 'due' => '2025-09-25', 'course' => 'Math 101'],
-                    ['assignment' => 'Physics Lab Report', 'due' => '2025-09-28', 'course' => 'Physics'],
-                    ['assignment' => 'Chemistry Quiz', 'due' => '2025-10-02', 'course' => 'Chemistry']
+                    ['assignment' => 'Physics Lab Report', 'due' => '2025-09-28', 'course' => 'Physics']
                 ];
                 $data['recentGrades'] = [
                     ['assignment' => 'Math Quiz 2', 'grade' => 'A', 'date' => '2025-09-15'],
-                    ['assignment' => 'Physics Homework', 'grade' => 'B+', 'date' => '2025-09-12'],
-                    ['assignment' => 'Chemistry Test', 'grade' => 'B', 'date' => '2025-09-10']
+                    ['assignment' => 'Physics Homework', 'grade' => 'B+', 'date' => '2025-09-12']
                 ];
                 break;
         }

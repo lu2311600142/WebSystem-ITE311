@@ -25,3 +25,7 @@ $routes->get('logout', 'Auth::logout');
 $routes->get('admin/dashboard', 'Admin::dashboard');
 $routes->get('teacher/dashboard', 'Teacher::dashboard'); 
 $routes->get('student/dashboard', 'Student::dashboard');
+
+// Course enrollment routes
+$routes->post('course/enroll', 'Course::enroll');
+$routes->get('courses', 'Course::index');

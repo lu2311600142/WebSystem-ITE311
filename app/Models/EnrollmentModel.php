@@ -1,5 +1,4 @@
-
-
+<?php
 
 namespace App\Models;
 
@@ -9,59 +8,41 @@ class EnrollmentModel extends Model
 {
     protected $table = 'enrollments';
     protected $primaryKey = 'id';
-    protected $useAutoIncrement = true;
-    protected $returnType = 'array';
-    protected $useSoftDeletes = false;
-    protected $protectFields = true;
-
-    protected $allowedFields = [
-        'user_id',
-        'course_id',
-        'enrollment_date'
-    ];
-
+    protected $allowedFields = ['student_id', 'course_id', 'enrolled_at'];
     protected $useTimestamps = false;
-    
-    protected $validationRules = [
-        'user_id' => 'required|integer',
-        'course_id' => 'required|integer',
-    ];
 
-    protected $validationMessages = [
-        'user_id' => [
-            'required' => 'User ID is required',
-            'integer' => 'User ID must be a valid integer'
-        ],
-        'course_id' => [
-            'required' => 'Course ID is required',
-            'integer' => 'Course ID must be a valid integer'
-        ]
-    ];
-
+    /**
+     * Enroll a user in a course
+     */
     public function enrollUser($data)
     {
         return $this->insert($data);
     }
 
-    public function getUserEnrollments($user_id)
+    /**
+     * Get all courses a user is enrolled in (with course details)
+     */
+    public function getUserEnrollments($userId)
     {
-        return $this->select('enrollments.*, courses.course_name, courses.course_code, courses.description, courses.credits')
+        return $this->select('courses.*, enrollments.enrolled_at')
             ->join('courses', 'courses.id = enrollments.course_id')
-            ->where('enrollments.user_id', $user_id)
+            ->where('enrollments.student_id', $userId)
             ->findAll();
     }
 
-    public function isAlreadyEnrolled($user_id, $course_id)
+    /**
+     * Check if a user is already enrolled in a specific course
+     */
+    public function isAlreadyEnrolled($userId, $courseId)
     {
-        $result = $this->where('user_id', $user_id)
-            ->where('course_id', $course_id)
-            ->first();
-        
-        return $result !== null;
+        return $this->where(['student_id' => $userId, 'course_id' => $courseId])->first() !== null;
     }
 
-    public function getCourseEnrollmentCount($course_id)
+    /**
+     * Get enrollment count for a specific course
+     */
+    public function getCourseEnrollmentCount($courseId)
     {
-        return $this->where('course_id', $course_id)->countAllResults();
+        return $this->where('course_id', $courseId)->countAllResults();
     }
 }
