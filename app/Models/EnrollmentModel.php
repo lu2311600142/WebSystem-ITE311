@@ -8,7 +8,7 @@ class EnrollmentModel extends Model
 {
     protected $table = 'enrollments';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['student_id', 'course_id', 'enrolled_at'];
+    protected $allowedFields = ['user_id', 'course_id', 'enrollment_date'];
     protected $useTimestamps = false;
 
     /**
@@ -24,9 +24,9 @@ class EnrollmentModel extends Model
      */
     public function getUserEnrollments($userId)
     {
-        return $this->select('courses.*, enrollments.enrolled_at')
+        return $this->select('courses.*, enrollments.enrollment_date')
             ->join('courses', 'courses.id = enrollments.course_id')
-            ->where('enrollments.student_id', $userId)
+            ->where('enrollments.user_id', $userId)
             ->findAll();
     }
 
@@ -35,7 +35,7 @@ class EnrollmentModel extends Model
      */
     public function isAlreadyEnrolled($userId, $courseId)
     {
-        return $this->where(['student_id' => $userId, 'course_id' => $courseId])->first() !== null;
+        return $this->where(['user_id' => $userId, 'course_id' => $courseId])->first() !== null;
     }
 
     /**

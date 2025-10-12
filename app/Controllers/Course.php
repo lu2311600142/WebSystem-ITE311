@@ -75,17 +75,17 @@ class Course extends BaseController
 
         // Enroll the user
         $enrollmentData = [
-            'student_id' => $userId,
+            'user_id' => $userId,
             'course_id' => $courseId,
-            'enrolled_at' => date('Y-m-d H:i:s')
+            'enrollment_date' => date('Y-m-d H:i:s')
         ];
 
         try {
             if ($enrollmentModel->enrollUser($enrollmentData)) {
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Successfully enrolled in ' . esc($course['title']) . '!',
-                    'course_title' => $course['title']
+                    'message' => 'Successfully enrolled in ' . esc($course->title) . '!',  // ✅ FIXED
+                    'course_title' => $course->title  // ✅ FIXED
                 ]);
             } else {
                 return $this->response->setJSON([

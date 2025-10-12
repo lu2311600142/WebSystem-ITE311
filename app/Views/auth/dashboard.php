@@ -235,7 +235,7 @@ echo view('templates/header', [
                     <h5 class="card-title"><?= esc($course['title']) ?></h5>
                     <p class="card-text text-muted"><?= esc($course['description']) ?></p>
                     <small class="text-muted">
-                      <i class="fas fa-calendar"></i> Enrolled: <?= date('M d, Y', strtotime($course['enrolled_at'])) ?>
+                      <i class="fas fa-calendar"></i> Enrolled: <?= date('M d, Y', strtotime($course['enrollment_date'])) ?>
                     </small>
                   </div>
                 </div>
