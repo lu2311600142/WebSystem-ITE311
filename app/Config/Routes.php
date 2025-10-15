@@ -29,3 +29,4 @@ $routes->get('student/dashboard', 'Student::dashboard');
 // Course enrollment routes
 $routes->post('course/enroll', 'Course::enroll');
 $routes->get('courses', 'Course::index');
+
