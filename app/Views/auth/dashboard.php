@@ -176,16 +176,16 @@ echo view('templates/header', [
     <div class="card shadow mb-4">
       <div class="card-header"><strong>My Teaching Courses</strong></div>
       <div class="card-body">
-        <?php if(!empty($enrolledCourses)): ?>
+        <?php if(!empty($teacherCourses)): ?>
           <ul class="list-group list-group-flush">
-            <?php foreach($enrolledCourses as $c): ?>
+            <?php foreach($teacherCourses as $course): ?>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                  <strong><?= esc($c['name'] ?? $c['course_name'] ?? $c['title'] ?? 'Course') ?></strong>
-                  <br><small class="text-muted">Students enrolled: <?= esc($c['students_count'] ?? 'N/A') ?></small>
+                  <strong><?= esc($course['title']) ?></strong>
+                  <br><small class="text-muted"><?= esc($course['description']) ?></small>
                 </div>
                 <div>
-                  <a href="<?= base_url('materials/view/' . ($c['id'] ?? $c['course_id'])) ?>" class="btn btn-sm btn-primary">
+                  <a href="<?= base_url('materials/view/' . $course['id']) ?>" class="btn btn-sm btn-primary">
                     <i class="fas fa-folder-open"></i> Manage Materials
                   </a>
                 </div>

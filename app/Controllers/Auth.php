@@ -164,9 +164,23 @@ class Auth extends BaseController
                 break;
 
             case 'teacher':
-                $data['totalCourses'] = 3;
-                $data['totalStudents'] = 25;
+                // Load CourseModel to fetch teacher's courses
+                $courseModel = new \App\Models\CourseModel();
+                
+                // Fetch courses where this teacher is the instructor
+                $teacherCourses = $courseModel->where('instructor_id', $userId)->findAll();
+                
+                // Count total students (you can improve this later with proper JOIN)
+                $enrollmentModel = new \App\Models\EnrollmentModel();
+                $totalStudents = 0;
+                foreach ($teacherCourses as $course) {
+                    $totalStudents += $enrollmentModel->where('course_id', $course['id'])->countAllResults();
+                }
+                
+                $data['totalCourses'] = count($teacherCourses);
+                $data['totalStudents'] = $totalStudents;
                 $data['pendingAssignments'] = 5;
+                $data['teacherCourses'] = $teacherCourses;
                 $data['notifications'] = [
                     'New assignment submitted in Math 101',
                     'Course "Physics Basics" needs review',
