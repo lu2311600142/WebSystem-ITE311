@@ -179,9 +179,16 @@ echo view('templates/header', [
         <?php if(!empty($enrolledCourses)): ?>
           <ul class="list-group list-group-flush">
             <?php foreach($enrolledCourses as $c): ?>
-              <li class="list-group-item">
-                <strong><?= esc($c['name'] ?? $c['course_name'] ?? 'Course') ?></strong>
-                <br><small class="text-muted">Students enrolled: <?= esc($c['students_count'] ?? 'N/A') ?></small>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong><?= esc($c['name'] ?? $c['course_name'] ?? $c['title'] ?? 'Course') ?></strong>
+                  <br><small class="text-muted">Students enrolled: <?= esc($c['students_count'] ?? 'N/A') ?></small>
+                </div>
+                <div>
+                  <a href="<?= base_url('materials/view/' . ($c['id'] ?? $c['course_id'])) ?>" class="btn btn-sm btn-primary">
+                    <i class="fas fa-folder-open"></i> Manage Materials
+                  </a>
+                </div>
               </li>
             <?php endforeach; ?>
           </ul>
@@ -237,6 +244,11 @@ echo view('templates/header', [
                     <small class="text-muted">
                       <i class="fas fa-calendar"></i> Enrolled: <?= date('M d, Y', strtotime($course['enrollment_date'])) ?>
                     </small>
+                    <div class="mt-3">
+                      <a href="<?= base_url('materials/view/' . $course['id']) ?>" class="btn btn-sm btn-primary">
+                        <i class="fas fa-folder-open"></i> View Materials
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
