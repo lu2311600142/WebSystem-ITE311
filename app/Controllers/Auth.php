@@ -54,6 +54,7 @@ class Auth extends BaseController
 
     /**
      * login() - Displays the login form and processes form submission.
+     * UPDATED FOR TASK 3: Role-based redirection after successful login
      */
     public function login()
     {
@@ -90,8 +91,19 @@ class Auth extends BaseController
                     ];
                     $session->set($sessionData);
 
-                    // Redirect all users to the same unified dashboard
-                    return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                    // TASK 3: Role-based redirection
+                    $role = $user['role'];
+                    
+                    if ($role === 'student') {
+                        return redirect()->to('/announcements')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                    } elseif ($role === 'teacher') {
+                        return redirect()->to('/teacher/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                    } elseif ($role === 'admin') {
+                        return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                    } else {
+                        // Fallback for unknown roles
+                        return redirect()->to('/announcements')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                    }
                 } else {
                     return redirect()->back()->withInput()->with('error', 'Invalid email or password.');
                 }
@@ -116,6 +128,8 @@ class Auth extends BaseController
 
     /**
      * dashboard() - A unified dashboard that displays content based on user role.
+     * NOTE: This is kept for backward compatibility, but role-specific dashboards 
+     * are now in separate controllers (Teacher.php and Admin.php)
      */
     public function dashboard()
     {

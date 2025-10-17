@@ -37,3 +37,4 @@ $routes->get('materials/view/(:num)', 'Materials::view/$1');
 $routes->get('materials/download/(:num)', 'Materials::download/$1');
 $routes->get('materials/delete/(:num)', 'Materials::delete/$1');
 
+$routes->get('/announcements', 'Announcement::index');
