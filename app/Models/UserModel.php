@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table = 'users'; // Use the existing table with data
+    protected $table = 'users';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
@@ -27,11 +27,12 @@ class UserModel extends Model
     protected $updatedField = 'updated_at';
 
     // Validation
+    // ✅ FIXED: Changed 'instructor' to 'teacher' to match database roles
     protected $validationRules = [
         'username' => 'required|min_length[3]|max_length[100]',
-        'email' => 'required|valid_email|max_length[100]|is_unique[users.email]',
+        'email' => 'required|valid_email|max_length[100]|is_unique[users.email,id,{id}]',
         'password' => 'required|min_length[6]',
-        'role' => 'required|in_list[admin,student,instructor]'
+        'role' => 'required|in_list[admin,student,teacher]' // ✅ FIXED: 'teacher' not 'instructor'
     ];
 
     protected $validationMessages = [
@@ -47,6 +48,10 @@ class UserModel extends Model
         'password' => [
             'required' => 'Password is required',
             'min_length' => 'Password must be at least 6 characters long'
+        ],
+        'role' => [
+            'required' => 'Role is required',
+            'in_list' => 'Role must be admin, student, or teacher'
         ]
     ];
 
@@ -64,6 +69,3 @@ class UserModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 }
-
-
-

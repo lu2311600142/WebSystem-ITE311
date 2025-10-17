@@ -4,20 +4,26 @@ namespace App\Controllers;
 
 class Teacher extends BaseController
 {
+    /**
+     * dashboard() - Teacher Dashboard
+     * 
+     * NOTE: No need for manual role checks here because:
+     * 1. AuthFilter checks if user is logged in
+     * 2. RoleAuth filter checks if user has 'teacher' or 'admin' role
+     * If they reach this method, they're already authorized!
+     */
     public function dashboard()
     {
         $session = session();
 
-        // Check if user is logged in
-        if (!$session->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'Please login first.');
-        }
+        // Prepare dashboard data
+        $data = [
+            'title' => 'Teacher Dashboard',
+            'username' => $session->get('username'),
+            'email' => $session->get('email'),
+            'role' => $session->get('role'),
+        ];
 
-        // Authorization check - only teacher can access
-        if ($session->get('role') !== 'teacher') {
-            return redirect()->to('/announcements')->with('error', 'Access denied.');
-        }
-
-        return view('teacher_dashboard');  
+        return view('teacher_dashboard', $data);  
     }
 }

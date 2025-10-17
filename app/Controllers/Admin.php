@@ -6,26 +6,24 @@ use App\Models\UserModel;
 
 class Admin extends BaseController
 {
+    /**
+     * dashboard() - Admin Dashboard
+     * 
+     * NOTE: No need for manual role checks here because:
+     * 1. AuthFilter checks if user is logged in
+     * 2. RoleAuth filter checks if user has 'admin' role
+     * If they reach this method, they're already authorized!
+     */
     public function dashboard()
     {
         $session = session();
-
-        // Check if user is logged in
-        if (!$session->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'Please login first.');
-        }
-
-        // Authorization check - only admin can access
-        if ($session->get('role') !== 'admin') {
-            return redirect()->to('/login')->with('error', 'Access denied. Admin privileges required.');
-        }
-
         $userModel = new UserModel();
         
         // Prepare dashboard data
         $data = [
             'title' => 'Admin Dashboard',
             'username' => $session->get('username'),
+            'email' => $session->get('email'),
             'role' => $session->get('role'),
             'totalUsers' => $userModel->countAll(),
             'totalAdmins' => $userModel->where('role', 'admin')->countAllResults(),
