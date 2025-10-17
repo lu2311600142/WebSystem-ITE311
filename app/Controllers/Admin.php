@@ -34,6 +34,6 @@ class Admin extends BaseController
             'recentUsers' => $userModel->orderBy('created_at', 'DESC')->limit(5)->find()
         ];
 
-        return view('admin/dashboard', $data);
+        return view('admin_dashboard', $data); 
     }
 }

@@ -25,7 +25,7 @@ class Teacher extends BaseController
             'title' => 'Teacher Dashboard',
             'username' => $session->get('username'),
             'role' => $session->get('role'),
-            'totalCourses' => 3, // Mock data - you can connect to courses table later
+            'totalCourses' => 3, // Mock data
             'totalStudents' => 25, // Mock data
             'pendingAssignments' => 5, // Mock data
             'notifications' => [
@@ -35,6 +35,6 @@ class Teacher extends BaseController
             ]
         ];
 
-        return view('teacher/dashboard', $data);
+        return view('teacher_dashboard', $data);  
     }
 }
