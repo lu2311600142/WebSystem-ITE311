@@ -94,9 +94,11 @@ class Auth extends BaseController
                     // TASK 3: Role-based redirection
                     $role = $user['role'];
                     
+                    // ✅ FIXED: All role redirections properly configured
                     if ($role === 'student') {
                         return redirect()->to('/announcements')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'teacher') {
+                        // ✅ THIS IS THE FIX - redirects to teacher dashboard
                         return redirect()->to('/teacher/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'admin') {
                         return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');

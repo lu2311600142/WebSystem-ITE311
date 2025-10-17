@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
-
 class Teacher extends BaseController
 {
     public function dashboard()
@@ -17,24 +15,9 @@ class Teacher extends BaseController
 
         // Authorization check - only teacher can access
         if ($session->get('role') !== 'teacher') {
-            return redirect()->to('/login')->with('error', 'Access denied. Teacher privileges required.');
+            return redirect()->to('/announcements')->with('error', 'Access denied.');
         }
 
-        // Prepare dashboard data
-        $data = [
-            'title' => 'Teacher Dashboard',
-            'username' => $session->get('username'),
-            'role' => $session->get('role'),
-            'totalCourses' => 3, // Mock data
-            'totalStudents' => 25, // Mock data
-            'pendingAssignments' => 5, // Mock data
-            'notifications' => [
-                'New assignment submitted in Math 101',
-                'Course "Physics Basics" needs review',
-                'Student John Doe requested help'
-            ]
-        ];
-
-        return view('teacher_dashboard', $data);  
+        return view('teacher_dashboard');  
     }
 }
