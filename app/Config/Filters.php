@@ -21,7 +21,7 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'auth'          => \App\Filters\AuthFilter::class,
-        'roleauth'      => \App\Filters\RoleAuth::class, // ✅ Role-based access control
+        'roleauth'      => \App\Filters\RoleAuth::class, // Role-based access control
     ];
 
     /**
@@ -51,7 +51,7 @@ class Filters extends BaseConfig
      * List of filter aliases that should run on any
      * before or after URI patterns.
      * 
-     * ✅ FIXED: Added RoleAuth filter for role-based access control
+     * Added RoleAuth filter for role-based access control
      * Order matters: auth runs first (login check), then roleauth (permission check)
      */
     public array $filters = [

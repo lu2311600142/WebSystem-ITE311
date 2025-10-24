@@ -120,6 +120,25 @@ echo view('templates/header', [
     <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
   <?php endif; ?>
 
+  <div class="card shadow mb-4">
+    <div class="card-header"><strong>Announcements</strong></div>
+    <div class="card-body">
+      <?php if (!empty($announcements)): ?>
+        <ul class="list-group list-group-flush">
+          <?php foreach ($announcements as $a): ?>
+            <li class="list-group-item">
+              <h5 class="mb-1"><?= esc($a['title']) ?></h5>
+              <p class="mb-1"><?= esc($a['content']) ?></p>
+              <small class="text-muted">Posted on: <?= isset($a['created_at']) ? esc($a['created_at']) : '-' ?></small>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php else: ?>
+        <p class="text-muted">No announcements available.</p>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <!-- Admin content -->
   <?php if($role === 'admin'): ?>
     <div class="row mb-4">

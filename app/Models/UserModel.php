@@ -27,12 +27,11 @@ class UserModel extends Model
     protected $updatedField = 'updated_at';
 
     // Validation
-    // ✅ FIXED: Changed 'instructor' to 'teacher' to match database roles
     protected $validationRules = [
         'username' => 'required|min_length[3]|max_length[100]',
         'email' => 'required|valid_email|max_length[100]|is_unique[users.email,id,{id}]',
         'password' => 'required|min_length[6]',
-        'role' => 'required|in_list[admin,student,teacher]' // ✅ FIXED: 'teacher' not 'instructor'
+        'role' => 'required|in_list[admin,student,teacher]' 
     ];
 
     protected $validationMessages = [

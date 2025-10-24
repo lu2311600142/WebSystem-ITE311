@@ -9,7 +9,7 @@ class Admin extends BaseController
     /**
      * dashboard() - Admin Dashboard
      * 
-     * NOTE: No need for manual role checks here because:
+     * No need for manual role checks here because:
      * 1. AuthFilter checks if user is logged in
      * 2. RoleAuth filter checks if user has 'admin' role
      * If they reach this method, they're already authorized!

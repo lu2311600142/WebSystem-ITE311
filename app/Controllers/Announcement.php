@@ -9,7 +9,7 @@ class Announcement extends BaseController
     /**
      * index() - Display all announcements
      * 
-     * NOTE: Protected by AuthFilter (all logged-in users can access)
+     * Protected by AuthFilter (all logged-in users can access)
      */
     public function index()
     {

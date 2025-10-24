@@ -41,12 +41,17 @@ class Materials extends BaseController
             $validationRules = [
                 'material_file' => [
                     'label' => 'File',
-                    'rules' => 'uploaded[material_file]|max_size[material_file,10240]|ext_in[material_file,pdf,doc,docx,ppt,pptx,xlsx,zip]'
+                    'rules' => 'uploaded[material_file]'
+                        . '|max_size[material_file,10240]'
+                        . '|ext_in[material_file,pdf,doc,docx,ppt,pptx,xlsx,zip]'
+                        . '|mime_in[material_file,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip]'
                 ]
             ];
 
             if (!$this->validate($validationRules)) {
-                return redirect()->back()->with('error', 'Invalid file. Please upload PDF, DOC, DOCX, PPT, PPTX, XLSX, or ZIP files only (max 10MB).');
+                $errors = $this->validator ? $this->validator->getErrors() : ['Invalid file upload.'];
+                $msg = !empty($errors) ? implode(' ', array_map('esc', $errors)) : 'Invalid file. Please upload PDF, DOC, DOCX, PPT, PPTX, XLSX, or ZIP files only (max 10MB).';
+                return redirect()->back()->withInput()->with('error', $msg);
             }
 
             $file = $this->request->getFile('material_file');
@@ -75,11 +80,14 @@ class Materials extends BaseController
                     return redirect()->back()->with('success', 'Material uploaded successfully!');
                 } else {
                     // Delete uploaded file if database insert fails
-                    unlink($uploadPath . $newName);
+                    $fullPath = $uploadPath . $newName;
+                    if (is_file($fullPath)) {
+                        @unlink($fullPath);
+                    }
                     return redirect()->back()->with('error', 'Failed to save material information.');
                 }
             } else {
-                return redirect()->back()->with('error', 'Failed to upload file.');
+                return redirect()->back()->withInput()->with('error', 'Failed to upload file.');
             }
         }
 
@@ -150,10 +158,10 @@ class Materials extends BaseController
             return redirect()->back()->with('error', 'Material not found.');
         }
 
-        // Delete file from server
+        // Delete file from server (safe)
         $filePath = WRITEPATH . $material['file_path'];
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        if (is_file($filePath)) {
+            @unlink($filePath);
         }
 
         // Delete from database

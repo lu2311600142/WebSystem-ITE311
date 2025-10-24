@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\AnnouncementModel;
 
 class Auth extends BaseController
 {
@@ -54,7 +55,7 @@ class Auth extends BaseController
 
     /**
      * login() - Displays the login form and processes form submission.
-     * UPDATED FOR TASK 3: Role-based redirection after successful login
+     * Role-based redirection after successful login
      */
     public function login()
     {
@@ -91,20 +92,20 @@ class Auth extends BaseController
                     ];
                     $session->set($sessionData);
 
-                    // TASK 3: Role-based redirection
+                    // Role-based redirection
                     $role = $user['role'];
                     
-                    // ✅ FIXED: All role redirections properly configured
+                    // All role redirections properly configured
                     if ($role === 'student') {
-                        return redirect()->to('/announcements')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                        return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'teacher') {
-                        // ✅ THIS IS THE FIX - redirects to teacher dashboard
+                        // THIS IS THE FIX - redirects to teacher dashboard
                         return redirect()->to('/teacher/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'admin') {
                         return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } else {
                         // Fallback for unknown roles
-                        return redirect()->to('/announcements')->with('success', 'Welcome back, ' . $user['username'] . '!');
+                        return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     }
                 } else {
                     return redirect()->back()->withInput()->with('error', 'Invalid email or password.');
@@ -130,7 +131,7 @@ class Auth extends BaseController
 
     /**
      * dashboard() - A unified dashboard that displays content based on user role.
-     * NOTE: This is kept for backward compatibility, but role-specific dashboards 
+     * This is kept for backward compatibility, but role-specific dashboards 
      * are now in separate controllers (Teacher.php and Admin.php)
      */
     public function dashboard()
@@ -233,6 +234,10 @@ class Auth extends BaseController
                 ];
                 break;
         }
+
+        // Load announcements for all roles
+        $announcementModel = new AnnouncementModel();
+        $data['announcements'] = $announcementModel->orderBy('created_at', 'DESC')->findAll();
 
         return view('auth/dashboard', $data);
     }

@@ -84,8 +84,8 @@ class Course extends BaseController
             if ($enrollmentModel->enrollUser($enrollmentData)) {
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Successfully enrolled in ' . esc($course->title) . '!',  // ✅ FIXED
-                    'course_title' => $course->title  // ✅ FIXED
+                    'message' => 'Successfully enrolled in ' . esc($course->title) . '!',  
+                    'course_title' => $course->title  
                 ]);
             } else {
                 return $this->response->setJSON([

@@ -19,7 +19,8 @@ echo view('templates/header', [
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4><i class="fas fa-folder-open"></i> <?= esc($course['title']) ?> - Course Materials</h4>
             <?php if($role === 'admin' || $role === 'teacher'): ?>
-                <a href="<?= base_url('admin/course/' . $course['id'] . '/upload') ?>" class="btn btn-light btn-sm">
+                <?php $uploadBase = $role === 'admin' ? 'admin' : 'teacher'; ?>
+                <a href="<?= base_url($uploadBase . '/course/' . $course['id'] . '/upload') ?>" class="btn btn-light btn-sm">
                     <i class="fas fa-upload"></i> Upload New Material
                 </a>
             <?php endif; ?>

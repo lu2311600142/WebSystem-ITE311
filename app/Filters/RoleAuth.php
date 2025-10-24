@@ -28,7 +28,7 @@ class RoleAuth implements FilterInterface
             return redirect()->to('/login')->with('error', 'Please login first.');
         }
 
-        // Get user's role from session
+        // Get users role from session
         $userRole = $session->get('role');
         
         // Get the current URI to determine required permissions
