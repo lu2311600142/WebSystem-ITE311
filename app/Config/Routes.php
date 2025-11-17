@@ -52,15 +52,25 @@ $routes->group('student', function($routes) {
     $routes->get('dashboard', 'Student::dashboard');
 });
 
+ HEAD
 // COURSE & ENROLLMENT ROUTE
 $routes->post('course/enroll', 'Course::enroll');
 $routes->get('courses', 'Course::index');
 
 // MATERIAL ROUTE
+=======
+// COURSE & ENROLLMENT ROUTES
+$routes->post('course/enroll', 'Course::enroll');
+$routes->get('courses', 'Course::index');
+
+// MATERIAL ROUTES
 $routes->get('materials/view/(:num)', 'Materials::view/$1');
 $routes->get('materials/download/(:num)', 'Materials::download/$1');
 $routes->get('materials/delete/(:num)', 'Materials::delete/$1');
 
+HEAD
 // Notification route
+=======
+// Notification routes
 $routes->get('notifications', 'Notifications::get');
 $routes->post('notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
