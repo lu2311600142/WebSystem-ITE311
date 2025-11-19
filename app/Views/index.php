@@ -96,7 +96,7 @@
     </nav>
 
     <main>
-        <p>This is the main page of your website. Explore the links above to learn moreeeeeee.</p>
+        <p>This is the main page of your website. Explore the links above to learn more.</p>
     </main>
 
     <footer>

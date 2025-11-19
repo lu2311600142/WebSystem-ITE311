@@ -2,27 +2,26 @@
 
 namespace App\Controllers;
 
+use App\Models\NotificationModel;
+
 class Teacher extends BaseController
 {
-    /**
-     * dashboard() - Teacher Dashboard
-     * 
-     * No need for manual role checks here because:
-     * 1. AuthFilter checks if user is logged in
-     * 2. RoleAuth filter checks if user has 'teacher' or 'admin' role
-     * If they reach this method, they're already authorized!
-     */
+    
     public function dashboard()
     {
         $session = session();
+        $userId = $session->get('id');
+
+        
+        $notificationModel = new NotificationModel();
+        $data['unreadCount'] = $notificationModel->getUnreadCount($userId);
+        $data['notifications'] = $notificationModel->getNotificationsForUser($userId, 5);
 
         // Prepare dashboard data
-        $data = [
-            'title' => 'Teacher Dashboard',
-            'username' => $session->get('username'),
-            'email' => $session->get('email'),
-            'role' => $session->get('role'),
-        ];
+        $data['title'] = 'Teacher Dashboard';
+        $data['username'] = $session->get('username');
+        $data['email'] = $session->get('email');
+        $data['role'] = $session->get('role');
 
         return view('teacher_dashboard', $data);  
     }

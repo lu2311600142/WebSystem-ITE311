@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\NotificationModel;
+
 class Student extends BaseController
 {
     public function dashboard()
@@ -17,6 +19,13 @@ class Student extends BaseController
         if ($session->get('role') !== 'student') {
             return redirect()->to('/login')->with('error', 'Access denied. Student privileges required.');
         }
+
+        $userId = $session->get('id');
+
+       
+        $notificationModel = new NotificationModel();
+        $data['unreadCount'] = $notificationModel->getUnreadCount($userId);
+        $data['notifications'] = $notificationModel->getNotificationsForUser($userId, 5);
 
         // Prepare dashboard data
         $data = [

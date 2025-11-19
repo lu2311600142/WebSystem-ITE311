@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\CourseModel;
 use App\Models\EnrollmentModel;
+use App\Models\NotificationModel; 
 
 class Course extends BaseController
 {
@@ -17,14 +18,11 @@ class Course extends BaseController
         return view('courses/index', $data);
     }
 
-    /**
-     * Handle AJAX enrollment request
-     */
     public function enroll()
     {
         $session = session();
         
-        // Security Check 1: Authorization - Check if user is logged in
+        // Check if user is logged in
         if (!$session->get('isLoggedIn')) {
             return $this->response->setJSON([
                 'success' => false,
@@ -32,7 +30,7 @@ class Course extends BaseController
             ])->setStatusCode(401);
         }
 
-        // Security Check 2: Role Validation - Only students can enroll
+        // Check if user is a student
         if ($session->get('role') !== 'student') {
             return $this->response->setJSON([
                 'success' => false,
@@ -40,9 +38,9 @@ class Course extends BaseController
             ])->setStatusCode(403);
         }
 
-        // Security Check 3: Input Validation - Validate course_id
         $courseId = $this->request->getPost('course_id');
-        
+
+        // Validate course ID
         if (empty($courseId) || !is_numeric($courseId)) {
             return $this->response->setJSON([
                 'success' => false,
@@ -53,8 +51,9 @@ class Course extends BaseController
         $courseModel = new CourseModel();
         $enrollmentModel = new EnrollmentModel();
         
-        // Security Check 4: Course Existence - Verify course exists
         $course = $courseModel->find($courseId);
+
+        // Check if course exists
         if (!$course) {
             return $this->response->setJSON([
                 'success' => false,
@@ -62,7 +61,6 @@ class Course extends BaseController
             ])->setStatusCode(404);
         }
 
-        // Security Check 5: Data Tampering Prevention - Use session user ID, not client-supplied
         $userId = $session->get('id');
 
         // Check if already enrolled
@@ -73,7 +71,7 @@ class Course extends BaseController
             ])->setStatusCode(409);
         }
 
-        // Enroll the user
+        // Prepare enrollment data
         $enrollmentData = [
             'user_id' => $userId,
             'course_id' => $courseId,
@@ -82,14 +80,15 @@ class Course extends BaseController
 
         try {
             if ($enrollmentModel->enrollUser($enrollmentData)) {
-                // Create a notification for the student (Lab 8 - Step 7)
+
+                //  LAB 8: CREATE NOTIFICATION
                 try {
-                    $notifModel = new \App\Models\NotificationModel();
+                    $notifModel = new NotificationModel();
                     $notifModel->insert([
-                        'user_id'   => (int)$userId,
-                        'message'   => 'You have been enrolled in ' . $course->title,
-                        'is_read'   => 0,
-                        'created_at'=> date('Y-m-d H:i:s'),
+                        'user_id'    => (int) $userId,
+                        'message'    => 'You have been enrolled in ' . esc($course['title']),
+                        'is_read'    => 0,
+                        'created_at' => date('Y-m-d H:i:s'),
                     ]);
                 } catch (\Throwable $t) {
                     log_message('error', 'Notification create failed: ' . $t->getMessage());
@@ -97,15 +96,17 @@ class Course extends BaseController
 
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Successfully enrolled in ' . esc($course->title) . '!',  
-                    'course_title' => $course->title  
+                    'message' => 'Successfully enrolled in ' . esc($course['title']) . '!',
+                    'course_title' => $course['title']
                 ]);
-            } else {
+            } 
+            else {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Failed to enroll. Please try again.'
                 ])->setStatusCode(500);
             }
+
         } catch (\Exception $e) {
             log_message('error', 'Enrollment error: ' . $e->getMessage());
             return $this->response->setJSON([

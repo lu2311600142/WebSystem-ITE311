@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\AnnouncementModel;
+use App\Models\NotificationModel; 
 
 class Auth extends BaseController
 {
@@ -99,12 +100,10 @@ class Auth extends BaseController
                     if ($role === 'student') {
                         return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'teacher') {
-                        // THIS IS THE FIX - redirects to teacher dashboard
                         return redirect()->to('/teacher/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } elseif ($role === 'admin') {
                         return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     } else {
-                        // Fallback for unknown roles
                         return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                     }
                 } else {
@@ -130,9 +129,7 @@ class Auth extends BaseController
     }
 
     /**
-     * dashboard() - A unified dashboard that displays content based on user role.
-     * This is kept for backward compatibility, but role-specific dashboards 
-     * are now in separate controllers (Teacher.php and Admin.php)
+     * dashboard() - A unified dashboard with notifications added
      */
     public function dashboard()
     {
@@ -147,15 +144,18 @@ class Auth extends BaseController
         $userRole = $session->get('role');
         $userId = $session->get('id');
 
-        // Base data for all users
-        $data = [
-            'title' => 'Dashboard',
-            'username' => $session->get('username'),
-            'email' => $session->get('email'),
-            'role' => $userRole
-        ];
+        // 🔔 LAB 8: ADD THESE TWO LINES
+        $notificationModel = new NotificationModel();
+        $data['unreadCount'] = $notificationModel->getUnreadCount($userId);
+        $data['notifications'] = $notificationModel->getNotificationsForUser($userId, 5);
 
-        // Initialize all variables to prevent undefined variable errors
+        // Base data for all roles
+        $data['title'] = 'Dashboard';
+        $data['username'] = $session->get('username');
+        $data['email'] = $session->get('email');
+        $data['role'] = $userRole;
+
+        // Initialize variables
         $data['totalUsers'] = 0;
         $data['totalAdmins'] = 0;
         $data['totalTeachers'] = 0;
@@ -163,7 +163,6 @@ class Auth extends BaseController
         $data['recentUsers'] = [];
         $data['totalCourses'] = 0;
         $data['pendingAssignments'] = 5;
-        $data['notifications'] = [];
         $data['enrolledCourses'] = [];
         $data['availableCourses'] = [];
         $data['upcomingDeadlines'] = [];
@@ -181,49 +180,40 @@ class Auth extends BaseController
                 break;
 
             case 'teacher':
-                // Load CourseModel to fetch teacher's courses
                 $courseModel = new \App\Models\CourseModel();
-                
-                // Fetch courses where this teacher is the instructor
                 $teacherCourses = $courseModel->where('instructor_id', $userId)->findAll();
-                
-                // Count total students (you can improve this later with proper JOIN)
+
                 $enrollmentModel = new \App\Models\EnrollmentModel();
                 $totalStudents = 0;
+
                 foreach ($teacherCourses as $course) {
                     $totalStudents += $enrollmentModel->where('course_id', $course['id'])->countAllResults();
                 }
-                
+
                 $data['totalCourses'] = count($teacherCourses);
                 $data['totalStudents'] = $totalStudents;
                 $data['pendingAssignments'] = 5;
                 $data['teacherCourses'] = $teacherCourses;
-                $data['notifications'] = [
-                    'New assignment submitted in Math 101',
-                    'Course "Physics Basics" needs review',
-                    'Student John Doe requested help'
-                ];
                 break;
 
             case 'student':
-                // Load models for enrollment
                 $enrollmentModel = new \App\Models\EnrollmentModel();
                 $courseModel = new \App\Models\CourseModel();
-                
+
                 // Get enrolled courses
                 $data['enrolledCourses'] = $enrollmentModel->getUserEnrollments($userId);
-                
-                // Get available courses (not enrolled yet)
+
+                // Get available courses
                 $data['availableCourses'] = $courseModel->getAvailableCourses($userId);
-                
+
                 // Calculate total credits
                 $totalCredits = 0;
                 foreach ($data['enrolledCourses'] as $course) {
-                    $totalCredits += 3; // Assuming 3 credits per course
+                    $totalCredits += 3;
                 }
                 $data['totalCredits'] = $totalCredits;
-                
-                // Mock data for deadlines and grades
+
+                // Mock data
                 $data['upcomingDeadlines'] = [
                     ['assignment' => 'Math Assignment 3', 'due' => '2025-09-25', 'course' => 'Math 101'],
                     ['assignment' => 'Physics Lab Report', 'due' => '2025-09-28', 'course' => 'Physics']
@@ -235,7 +225,7 @@ class Auth extends BaseController
                 break;
         }
 
-        // Load announcements for all roles
+        // Load announcements
         $announcementModel = new AnnouncementModel();
         $data['announcements'] = $announcementModel->orderBy('created_at', 'DESC')->findAll();
 
