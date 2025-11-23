@@ -10,7 +10,8 @@ echo view('templates/header', [
     'userRole' => $userRole,
     'username' => $username,
     'isLoggedIn' => $isLoggedIn,
-    'role' => $userRole
+    'role' => $userRole,
+    'unreadCount' => $unreadCount ?? 0
 ]);
 ?>
 

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\MaterialModel;
 use App\Models\CourseModel;
 use App\Models\EnrollmentModel;
+use App\Models\NotificationModel;
 
 class Materials extends BaseController
 {
@@ -96,6 +97,10 @@ class Materials extends BaseController
             'title' => 'Upload Material',
             'course' => $course
         ];
+        
+        // 🔔 LAB 8: Pass unreadCount for notifications
+        $notificationModel = new NotificationModel();
+        $data['unreadCount'] = $notificationModel->getUnreadCount((int) $session->get('id'));
 
         return view('materials/upload', $data);
     }
@@ -208,6 +213,10 @@ class Materials extends BaseController
             'materials' => $materials,
             'role' => $session->get('role')
         ];
+        
+        // 🔔 LAB 8: Pass unreadCount for notifications
+        $notificationModel = new NotificationModel();
+        $data['unreadCount'] = $notificationModel->getUnreadCount((int) $session->get('id'));
 
         return view('materials/view', $data);
     }

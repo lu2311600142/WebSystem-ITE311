@@ -43,7 +43,8 @@ echo view('templates/header', [
     'username' => $username,
     'isLoggedIn' => $isLoggedIn,
     'title' => $title,
-    'role' => $role
+    'role' => $role,
+    'unreadCount' => $unreadCount ?? 0
 ]);
 ?>
 

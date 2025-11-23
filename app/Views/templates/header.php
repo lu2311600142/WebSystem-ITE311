@@ -29,6 +29,31 @@ $notifications = $notifications ?? [];
         .notification-item:hover {
             background-color: #f8f9fa !important;
         }
+        /* Ensure notification bell is visible and clickable */
+        #notifDropdown {
+            cursor: pointer !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            pointer-events: auto !important;
+            z-index: 10;
+        }
+        #notifDropdown:hover {
+            color: rgba(255, 255, 255, 1) !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        /* Ensure dropdown menu is visible */
+        #notificationDropdown {
+            z-index: 1050 !important;
+            display: none;
+        }
+        #notificationDropdown.show {
+            display: block !important;
+        }
+        /* Loading state for notifications */
+        #notif-list.loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -48,10 +73,10 @@ $notifications = $notifications ?? [];
         <div class="collapse navbar-collapse" id="nav">
             <ul class="navbar-nav ms-auto">
                 <?php if ($isLoggedIn): ?>
-                    <!--  LAB 8: NOTIFICATION BELL ICON -->
+                    <!-- 🔔 LAB 8: NOTIFICATION BELL ICON -->
                     <li class="nav-item dropdown me-2">
-                        <a class="nav-link position-relative" href="#" id="notifDropdown" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link position-relative text-white" href="javascript:void(0);" id="notifDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; pointer-events: auto;">
                             <i class="fas fa-bell fs-5"></i>
                             <span id="notif-badge" 
                                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <?= $unreadCount > 0 ? 'notification-badge-pulse' : '' ?>" 
@@ -59,21 +84,19 @@ $notifications = $notifications ?? [];
                                 <?= $unreadCount > 9 ? '9+' : $unreadCount ?>
                             </span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 320px; max-width: 360px;">
-                            <li class="px-2 py-1 d-flex justify-content-between align-items-center">
+                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow" id="notificationDropdown" aria-labelledby="notifDropdown" style="min-width: 320px; max-width: 360px; z-index: 1050;">
+                            <li class="px-2 py-1 d-flex justify-content-between align-items-center border-bottom">
                                 <span class="text-muted small fw-bold">Notifications</span>
                                 <button class="btn btn-sm btn-link text-decoration-none p-0" id="notif-refresh" title="Refresh">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <div id="notif-list" class="d-flex flex-column gap-2" style="max-height: 300px; overflow-y: auto;">
-                                    <!-- Notifications loaded via AJAX -->
+                                <div id="notif-list" class="d-flex flex-column gap-2 mt-2" style="max-height: 300px; overflow-y: auto; min-height: 50px;">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="mt-2 text-center">
-                                <small class="text-muted">Auto-refresh every 60s</small>
                             </li>
                         </ul>
                     </li>
@@ -129,8 +152,8 @@ $notifications = $notifications ?? [];
         
         if (!items || items.length === 0) {
             $list.append(`
-                <div class="alert alert-secondary mb-0 text-center" role="alert">
-                    <i class="fas fa-bell-slash"></i><br>
+                <div class="alert alert-secondary mb-0 text-center py-3" role="alert">
+                    <i class="fas fa-bell-slash fa-2x mb-2"></i><br>
                     <small>No notifications</small>
                 </div>
             `);
@@ -143,14 +166,14 @@ $notifications = $notifications ?? [];
             const btn = isRead ? '' : `<button class="btn btn-sm btn-outline-primary notif-mark" data-id="${n.id}">Mark as Read</button>`;
             
             const row = `
-                <div class="notification-item alert ${alertClass} mb-0 p-2" role="alert" data-id="${n.id}">
+                <div class="notification-item alert ${alertClass} mb-2 p-2 rounded" role="alert" data-id="${n.id}">
                     <div class="d-flex align-items-start">
-                        <div class="me-2">
-                            <i class="fas ${isRead ? 'fa-envelope-open' : 'fa-envelope'}"></i>
+                        <div class="me-2 mt-1">
+                            <i class="fas ${isRead ? 'fa-envelope-open text-muted' : 'fa-envelope text-primary'}"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <p class="mb-1 small">${escapeHtml(n.message)}</p>
-                            <div class="d-flex justify-content-between align-items-center">
+                            <p class="mb-1 small fw-normal">${escapeHtml(n.message)}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-1">
                                 <small class="text-muted">${timeSince(n.created_at)}</small>
                                 ${btn}
                             </div>
@@ -188,11 +211,58 @@ $notifications = $notifications ?? [];
             });
     }
 
-    // Initial load
-    fetchNotifications();
-
-    // Auto-refresh every 60 seconds
-    setInterval(fetchNotifications, 60000);
+    // Initialize notifications and dropdown
+    $(document).ready(function() {
+        var dropdownOpen = false;
+        
+        // Manual dropdown toggle handler
+        $('#notifDropdown').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $dropdown = $('#notificationDropdown');
+            
+            if (dropdownOpen) {
+                // Close dropdown
+                $dropdown.removeClass('show').hide();
+                dropdownOpen = false;
+                $(this).attr('aria-expanded', 'false');
+            } else {
+                // Open dropdown
+                $dropdown.addClass('show').show();
+                dropdownOpen = true;
+                $(this).attr('aria-expanded', 'true');
+                
+                // Fetch notifications when opened
+                fetchNotifications();
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#notifDropdown, #notificationDropdown').length) {
+                $('#notificationDropdown').removeClass('show').hide();
+                dropdownOpen = false;
+                $('#notifDropdown').attr('aria-expanded', 'false');
+            }
+        });
+        
+        // Also listen for Bootstrap dropdown events (fallback)
+        $('#notifDropdown').on('shown.bs.dropdown', function() {
+            fetchNotifications();
+            dropdownOpen = true;
+        });
+        
+        $('#notifDropdown').on('hidden.bs.dropdown', function() {
+            dropdownOpen = false;
+        });
+        
+        // Initial load
+        fetchNotifications();
+        
+        // Auto-refresh every 60 seconds
+        setInterval(fetchNotifications, 60000);
+    });
 
     // Refresh button
     $(document).on('click', '#notif-refresh', function(e) {
@@ -205,18 +275,25 @@ $notifications = $notifications ?? [];
 
     // Mark as read
     $(document).on('click', '.notif-mark', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         const id = $(this).data('id');
         if (!id) return;
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Marking...');
 
         $.post('<?= base_url('notifications/mark_read/') ?>' + id, {
             <?= csrf_token() ?>: '<?= csrf_hash() ?>'
         }).done(function() {
             fetchNotifications();
+        }).fail(function() {
+            $btn.prop('disabled', false).text('Mark as Read');
+            alert('Failed to mark notification as read. Please try again.');
         });
     });
 
-    console.log('✅ LAB 8: Notification system loaded');
+    console.log(' LAB 8: Notification system loaded');
 })(jQuery);
 </script>
 <?php endif; ?>

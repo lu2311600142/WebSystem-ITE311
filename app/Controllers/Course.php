@@ -13,8 +13,18 @@ class Course extends BaseController
      */
     public function index()
     {
+        $session = session();
         $courseModel = new CourseModel();
         $data['courses'] = $courseModel->findAll();
+        
+        // 🔔 LAB 8: Pass unreadCount for notifications
+        if ($session->get('isLoggedIn')) {
+            $notificationModel = new NotificationModel();
+            $data['unreadCount'] = $notificationModel->getUnreadCount((int) $session->get('id'));
+        } else {
+            $data['unreadCount'] = 0;
+        }
+        
         return view('courses/index', $data);
     }
 
@@ -81,12 +91,12 @@ class Course extends BaseController
         try {
             if ($enrollmentModel->enrollUser($enrollmentData)) {
 
-                //  LAB 8: CREATE NOTIFICATION
+                // 🔔 LAB 8: CREATE NOTIFICATION
                 try {
                     $notifModel = new NotificationModel();
                     $notifModel->insert([
                         'user_id'    => (int) $userId,
-                        'message'    => 'You have been enrolled in ' . esc($course['title']),
+                        'message'    => 'You have been enrolled in ' . esc($course['title']) . '!',
                         'is_read'    => 0,
                         'created_at' => date('Y-m-d H:i:s'),
                     ]);
