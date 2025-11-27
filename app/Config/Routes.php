@@ -56,6 +56,10 @@ $routes->group('student', function($routes) {
 $routes->post('course/enroll', 'Course::enroll');
 $routes->get('courses', 'Course::index');
 
+// Search routes
+$routes->get('courses/search', 'Course::search');
+$routes->post('courses/search', 'Course::search');
+
 // MATERIAL ROUTE
 $routes->get('materials/view/(:num)', 'Materials::view/$1');
 $routes->get('materials/download/(:num)', 'Materials::download/$1');

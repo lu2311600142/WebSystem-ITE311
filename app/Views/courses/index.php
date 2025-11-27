@@ -39,11 +39,25 @@ echo view('templates/header', [
         </div>
     <?php endif; ?>
 
+    <!-- LAB 9: Search Interface -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form id="searchForm" class="d-flex">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search courses..." name="search_term">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <?php if (!empty($courses)): ?>
-        <div class="row">
+        <div id="coursesContainer" class="row">
             <?php foreach ($courses as $course): ?>
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm course-card">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title mb-1"><?= esc($course['title'] ?? $course->title ?? 'Untitled') ?></h5>
                             <p class="text-muted flex-grow-1"><?= esc($course['description'] ?? $course->description ?? '') ?></p>
@@ -64,12 +78,75 @@ echo view('templates/header', [
             <?php endforeach; ?>
         </div>
     <?php else: ?>
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> No courses available.
+        <div id="coursesContainer" class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No courses available.
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Client-side filtering
+    $('#searchInput').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('.course-card').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+    });
+
+    // Server-side search with AJAX
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        var searchTerm = $('#searchInput').val();
+
+        $.get('<?= base_url('courses/search') ?>', {search_term: searchTerm}, function(data) {
+            $('#coursesContainer').empty();
+
+            if (data.length > 0) {
+                $.each(data, function(index, course) {
+                    var courseId = course.id || course['id'];
+                    var courseTitle = course.title || course['title'] || 'Untitled';
+                    var courseDescription = course.description || course['description'] || '';
+                    var userRole = '<?= $userRole ?>';
+                    var uploadBase = (userRole === 'admin') ? 'admin' : 'teacher';
+                    
+                    var courseHtml = `
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm course-card">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title mb-1">${courseTitle}</h5>
+                                    <p class="text-muted flex-grow-1">${courseDescription}</p>
+                                    <div class="d-flex gap-2">
+                                        <a href="<?= base_url('materials/view/') ?>${courseId}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-folder-open"></i> View Materials
+                                        </a>`;
+                    
+                    if (userRole === 'admin' || userRole === 'teacher') {
+                        courseHtml += `
+                                        <a href="<?= base_url() ?>${uploadBase}/course/${courseId}/upload" class="btn btn-success btn-sm">
+                                            <i class="fas fa-upload"></i> Upload Material
+                                        </a>`;
+                    }
+                    
+                    courseHtml += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    $('#coursesContainer').append(courseHtml);
+                });
+            } else {
+                $('#coursesContainer').html('<div class="col-12"><div class="alert alert-info">No courses found matching your search.</div></div>');
+            }
+        }).fail(function() {
+            $('#coursesContainer').html('<div class="col-12"><div class="alert alert-danger">An error occurred while searching. Please try again.</div></div>');
+        });
+    });
+});
+</script>
 </body>
 </html>

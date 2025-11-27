@@ -125,4 +125,26 @@ class Course extends BaseController
             ])->setStatusCode(500);
         }
     }
+
+    /**
+     * Search courses - LAB 9: Search and Filtering System
+     */
+    public function search()
+    {
+        $courseModel = new CourseModel();
+        $searchTerm = $this->request->getGet('search_term');
+
+        if (!empty($searchTerm)) {
+            $courseModel->like('title', $searchTerm);
+            $courseModel->orLike('description', $searchTerm);
+        }
+
+        $courses = $courseModel->findAll();
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON($courses);
+        }
+
+        return view('courses/search_results', ['courses' => $courses, 'searchTerm' => $searchTerm]);
+    }
 }
