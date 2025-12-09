@@ -37,6 +37,18 @@ $routes->group('admin', function($routes) {
     $routes->post('course/(:num)/upload', 'Materials::upload/$1');
 });
 
+// USER MANAGEMENT ROUTES (Admin only)
+$routes->group('users', function($routes) {
+    $routes->get('/', 'Users::index');
+    $routes->get('create', 'Users::create');
+    $routes->post('store', 'Users::store');
+    $routes->get('edit/(:num)', 'Users::edit/$1');
+    $routes->post('update/(:num)', 'Users::update/$1');
+    $routes->get('delete/(:num)', 'Users::delete/$1');
+    $routes->get('trash', 'Users::trash');
+    $routes->get('restore/(:num)', 'Users::restore/$1');
+});
+
 // TEACHER ROUTES (Teacher + Admin roles)
 // Protected by both 'auth' and 'roleauth' filters
 $routes->group('teacher', function($routes) {

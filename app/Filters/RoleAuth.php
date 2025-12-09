@@ -82,16 +82,16 @@ class RoleAuth implements FilterInterface
         switch ($userRole) {
             case 'admin':
                 // Admin shouldn't reach here, but just in case
-                return redirect()->to('/admin/dashboard')->with('error', $message);
+                return redirect()->to('/dashboard')->with('error', $message);
                 
             case 'teacher':
                 // Teacher tried to access admin area
-                return redirect()->to('/teacher/dashboard')->with('error', $message);
+                return redirect()->to('/dashboard')->with('error', $message);
                 
             case 'student':
             default:
                 // Student tried to access admin or teacher area
-                return redirect()->to('/announcements')->with('error', $message);
+                return redirect()->to('/dashboard')->with('error', $message);
         }
     }
 }

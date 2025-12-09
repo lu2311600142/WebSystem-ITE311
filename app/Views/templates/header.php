@@ -102,7 +102,7 @@ $notifications = $notifications ?? [];
                     </li>
                     
                     <?php if ($role === 'admin'): ?>
-                        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-users"></i> Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= base_url('users') ?>"><i class="fas fa-users"></i> Users</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= base_url('courses') ?>"><i class="fas fa-book"></i> Courses</a></li>
                     <?php elseif ($role === 'teacher'): ?>
                         <li class="nav-item"><a class="nav-link" href="<?= base_url('courses') ?>"><i class="fas fa-book"></i> My Classes</a></li>

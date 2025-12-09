@@ -93,19 +93,8 @@ class Auth extends BaseController
                     ];
                     $session->set($sessionData);
 
-                    // Role-based redirection
-                    $role = $user['role'];
-                    
-                    // All role redirections properly configured
-                    if ($role === 'student') {
-                        return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
-                    } elseif ($role === 'teacher') {
-                        return redirect()->to('/teacher/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
-                    } elseif ($role === 'admin') {
-                        return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
-                    } else {
-                        return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
-                    }
+                    // Redirect all users to unified dashboard
+                    return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $user['username'] . '!');
                 } else {
                     return redirect()->back()->withInput()->with('error', 'Invalid email or password.');
                 }
@@ -181,17 +170,24 @@ class Auth extends BaseController
 
             case 'teacher':
                 $courseModel = new \App\Models\CourseModel();
+                
+                // Ensure userId is an integer for proper query matching
+                $userId = (int) $userId;
+                
+                // Get courses assigned to this teacher
+                // The instructor_id in courses table must match the teacher's user ID
                 $teacherCourses = $courseModel->where('instructor_id', $userId)->findAll();
-
-                $enrollmentModel = new \App\Models\EnrollmentModel();
-                $totalStudents = 0;
-
-                foreach ($teacherCourses as $course) {
-                    $totalStudents += $enrollmentModel->where('course_id', $course['id'])->countAllResults();
+                
+                // Debug: Log if no courses found (for troubleshooting)
+                if (empty($teacherCourses) && $userId > 0) {
+                    log_message('debug', "Teacher ID {$userId} ({$data['username']}) has no courses assigned. Courses need instructor_id = {$userId} to appear.");
                 }
 
+                // Count total students in the system (matching admin dashboard)
+                // This makes it responsive to new student additions
+                $data['totalStudents'] = $userModel->where('role', 'student')->countAllResults();
+
                 $data['totalCourses'] = count($teacherCourses);
-                $data['totalStudents'] = $totalStudents;
                 $data['pendingAssignments'] = 5;
                 $data['teacherCourses'] = $teacherCourses;
                 break;

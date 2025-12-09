@@ -10,11 +10,12 @@ class UserModel extends Model
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
-    protected $useSoftDeletes = false;
+    protected $useSoftDeletes = true;
     protected $protectFields = true;
 
     protected $allowedFields = [
         'username',
+        'name',
         'email', 
         'password',
         'role'
@@ -25,13 +26,23 @@ class UserModel extends Model
     protected $dateFormat = 'datetime';
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
 
     // Validation
     protected $validationRules = [
-        'username' => 'required|min_length[3]|max_length[100]',
+        'username' => 'permit_empty|min_length[3]|max_length[100]',
+        'name' => 'permit_empty|min_length[3]|max_length[100]',
         'email' => 'required|valid_email|max_length[100]|is_unique[users.email,id,{id}]',
-        'password' => 'required|min_length[6]',
+        'password' => 'permit_empty|min_length[6]',
         'role' => 'required|in_list[admin,student,teacher]' 
+    ];
+    
+    // Validation rules for insert (stricter)
+    protected $validationRulesInsert = [
+        'name' => 'required|min_length[3]|max_length[100]',
+        'email' => 'required|valid_email|max_length[100]|is_unique[users.email]',
+        'password' => 'required|min_length[6]',
+        'role' => 'required|in_list[admin,student,teacher]'
     ];
 
     protected $validationMessages = [
