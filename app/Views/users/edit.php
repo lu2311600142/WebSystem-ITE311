@@ -99,11 +99,36 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" 
-                                       class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" 
-                                       id="password" 
-                                       name="password">
+                                <label for="current_password" class="form-label">Current Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control <?= isset($errors['current_password']) ? 'is-invalid' : '' ?>" 
+                                           id="current_password" 
+                                           name="current_password"
+                                           placeholder="Enter current password to verify"
+                                           required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword" title="Show/Hide Current Password">
+                                        <i class="fas fa-eye" id="toggleCurrentPasswordIcon"></i>
+                                    </button>
+                                </div>
+                                <?php if (isset($errors['current_password'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['current_password'] ?></div>
+                                <?php endif; ?>
+                                <small class="form-text text-muted">Enter the current password to verify your identity before making changes.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" 
+                                           id="password" 
+                                           name="password"
+                                           placeholder="Enter new password or leave blank to keep current">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" title="Show/Hide New Password">
+                                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
                                 <?php if (isset($errors['password'])): ?>
                                     <div class="invalid-feedback"><?= $errors['password'] ?></div>
                                 <?php endif; ?>
@@ -142,6 +167,36 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle password visibility functions
+        function setupPasswordToggle(toggleId, inputId, iconId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (toggle && input && icon) {
+                toggle.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    
+                    // Toggle icon
+                    if (type === 'text') {
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            }
+        }
+
+        // Initialize password toggles
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPasswordToggle('toggleCurrentPassword', 'current_password', 'toggleCurrentPasswordIcon');
+            setupPasswordToggle('togglePassword', 'password', 'togglePasswordIcon');
+        });
+    </script>
 </body>
 </html>
 

@@ -100,11 +100,16 @@
 
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" 
-                                       class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" 
-                                       id="password" 
-                                       name="password" 
-                                       required>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" 
+                                           id="password" 
+                                           name="password" 
+                                           required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" title="Show/Hide Password">
+                                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
                                 <?php if (isset($errors['password'])): ?>
                                     <div class="invalid-feedback"><?= $errors['password'] ?></div>
                                 <?php endif; ?>
@@ -143,6 +148,30 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle password visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+            
+            if (togglePassword && passwordInput && toggleIcon) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Toggle icon
+                    if (type === 'text') {
+                        toggleIcon.classList.remove('fa-eye');
+                        toggleIcon.classList.add('fa-eye-slash');
+                    } else {
+                        toggleIcon.classList.remove('fa-eye-slash');
+                        toggleIcon.classList.add('fa-eye');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 

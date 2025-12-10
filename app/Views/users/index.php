@@ -132,15 +132,36 @@
                                                 </td>
                                                 <td><?= esc($user['created_at'] ?? 'N/A') ?></td>
                                                 <td>
-                                                    <a href="<?= base_url('users/edit/' . $user['id']) ?>" class="btn btn-sm btn-warning btn-action" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('users/delete/' . $user['id']) ?>" 
-                                                       class="btn btn-sm btn-danger btn-action" 
-                                                       title="Delete"
-                                                       onclick="return confirm('Are you sure you want to delete this user?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
+                                                    <?php 
+                                                    $loggedInUserId = $loggedInUserId ?? session('id');
+                                                    $isOwnAccount = ($user['id'] == $loggedInUserId);
+                                                    $isAdmin = ($user['role'] === 'admin');
+                                                    ?>
+                                                    
+                                                    <?php if (!$isOwnAccount): ?>
+                                                        <!-- RULE 2: Hide Edit button for logged-in admin's own account -->
+                                                        <a href="<?= base_url('users/edit/' . $user['id']) ?>" class="btn btn-sm btn-warning btn-action" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="btn btn-sm btn-secondary btn-action disabled" title="You cannot edit your own account" style="cursor: not-allowed; opacity: 0.6;">
+                                                            <i class="fas fa-edit"></i>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (!$isAdmin): ?>
+                                                        <!-- RULE 1: Hide Delete button for admin users -->
+                                                        <a href="<?= base_url('users/delete/' . $user['id']) ?>" 
+                                                           class="btn btn-sm btn-danger btn-action" 
+                                                           title="Delete"
+                                                           onclick="return confirm('Are you sure you want to delete this user?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="btn btn-sm btn-secondary btn-action disabled" title="Admin accounts cannot be deleted" style="cursor: not-allowed; opacity: 0.6;">
+                                                            <i class="fas fa-trash"></i>
+                                                        </span>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

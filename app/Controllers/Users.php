@@ -29,6 +29,7 @@ class Users extends BaseController
         $data['title'] = 'User Management';
         $data['username'] = $session->get('username');
         $data['role'] = $session->get('role');
+        $data['loggedInUserId'] = $session->get('id'); // Pass logged-in user ID for security checks
 
         return view('users/index', $data);
     }
@@ -131,6 +132,13 @@ class Users extends BaseController
             return redirect()->to('/users')->with('error', 'User ID is required.');
         }
 
+        $loggedInUserId = $session->get('id');
+        
+        // RULE 2: Prevent admin from editing their own account
+        if ($id == $loggedInUserId) {
+            return redirect()->to('/users')->with('error', 'You cannot edit your own account.');
+        }
+
         $user = $this->userModel->find($id);
 
         if (!$user) {
@@ -161,10 +169,28 @@ class Users extends BaseController
             return redirect()->to('/users')->with('error', 'User ID is required.');
         }
 
+        $loggedInUserId = $session->get('id');
+        
+        // RULE 2: Prevent admin from updating their own account
+        if ($id == $loggedInUserId) {
+            return redirect()->to('/users')->with('error', 'You cannot update your own account.');
+        }
+
         // Check if user exists
         $user = $this->userModel->find($id);
         if (!$user) {
             return redirect()->to('/users')->with('error', 'User not found.');
+        }
+
+        // Verify current password before allowing updates
+        $currentPassword = $this->request->getPost('current_password');
+        if (empty($currentPassword)) {
+            return redirect()->back()->withInput()->with('errors', ['Current password is required to verify your identity.']);
+        }
+
+        // Verify the current password matches
+        if (!password_verify($currentPassword, $user['password'])) {
+            return redirect()->back()->withInput()->with('errors', ['Current password is incorrect. Please enter the correct password.']);
         }
 
         // Validation rules
@@ -258,6 +284,11 @@ class Users extends BaseController
             return redirect()->to('/users')->with('error', 'User not found.');
         }
 
+        // RULE 1: Prevent deletion of admin users
+        if (isset($user['role']) && $user['role'] === 'admin') {
+            return redirect()->to('/users')->with('error', 'Admin accounts cannot be deleted.');
+        }
+
         try {
             // Soft delete using CodeIgniter's soft delete
             if ($this->userModel->delete($id)) {
@@ -288,6 +319,7 @@ class Users extends BaseController
         $data['title'] = 'Deleted Users (Trash)';
         $data['username'] = $session->get('username');
         $data['role'] = $session->get('role');
+        $data['loggedInUserId'] = $session->get('id'); // Pass logged-in user ID for security checks
 
         return view('users/trash', $data);
     }
